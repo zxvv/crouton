@@ -59,6 +59,8 @@ getname() {
 # Only let one instance run at a time to avoid nasty race conditions
 mkdir -m 775 -p "$CROUTONLOCKDIR"
 exec 3>"$CROUTONLOCKDIR/cycle"
+chmod -Rf g+rwX "$CROUTONLOCKDIR" || true
+chgrp -Rf crouton "$CROUTONLOCKDIR" || true
 flock 3
 
 # set display command from extension
@@ -97,8 +99,8 @@ done
 # Set to the freon display owner if freon is used
 freonowner=''
 if [ ! -f "/sys/class/tty/tty0/active" ]; then
-    if [ -f "/tmp/crouton-lock/display" ]; then
-        read -r freonowner < "/tmp/crouton-lock/display"
+    if [ -f "$CROUTONLOCKDIR/display" ]; then
+        read -r freonowner < "$CROUTONLOCKDIR/display"
     fi
     freonowner="${freonowner:-0}"
     winlist="aura*"
